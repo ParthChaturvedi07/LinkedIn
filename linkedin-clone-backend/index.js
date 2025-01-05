@@ -4,7 +4,6 @@ const expressSession = require("express-session");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const helmet = require("helmet");
-const path = require("path");
 const cors = require("cors");
 const MongoStore = require("connect-mongo");
 const authRoutes = require("./controllers/authcontrollers");
@@ -14,12 +13,11 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const connectionRoutes = require("./routes/connectionRoutes");
 require("dotenv").config();
 
-
 // CORS Middleware
 app.use(
   cors({
     origin: (origin, callback) => {
-      const allowedOrigins = ["https://linked-in-virid-eight.vercel.app"]; // Add allowed frontend URLs here
+      const allowedOrigins = [process.env.CLIENT_URL, "https://linked-in-virid-eight.vercel.app"];
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
@@ -40,7 +38,6 @@ app.use(
   })
 );
 
-
 // Database Connection
 mongoose
   .connect(process.env.MONGODB_URI, {
@@ -58,15 +55,14 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
-    cookie: { secure: process.env.NODE_ENV === "production", httpOnly: true }, // Secure cookies in production
+    cookie: { secure: process.env.NODE_ENV === "production", httpOnly: true },
   })
 );
 
 // Routes
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to LinkedIn Clone API" });
-}
-);
+});
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 app.use("/posts", postRoutes);
